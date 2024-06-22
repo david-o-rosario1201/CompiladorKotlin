@@ -1,0 +1,313 @@
+﻿@page "/"
+@using System.Text.RegularExpressions
+@using CompiladorKotlin.Clases
+@rendermode InteractiveServer
+
+<PageTitle>Compilador Kotlin</PageTitle>
+
+<div class="row mb-3">
+	<div class="col-6">
+		@*Escribir*@
+		<label class="form-label" for="escribir"><strong>Escribir</strong></label>
+		<InputTextArea id="escribir" class="form-control" @bind-Value="escribir"></InputTextArea>
+	</div>
+	<div class="col-6">
+		@*Mostrar*@
+		<label class="form-label" for="mostrar"><strong>Mostrar</strong></label>
+		<InputTextArea id="mostrar" class="form-control" @bind-Value="mostrar"></InputTextArea>
+	</div>
+</div>
+
+<span class="d-flex justify-content-center">
+	<button type="button" class="btn btn-outline-primary" @onclick="Compilar">Compilar</button>
+</span>
+
+@code{
+	public string escribir { get; set; }
+	public string valor { get; set; }
+	public string mostrar { get; set; }
+	public string valorEntreComillas { get; set; }
+
+
+	////Patrones
+	///Patrones para imprimir
+	string patronPrint = @"^print\(""[^""]*""\)";
+	string patronPrintConVariable = @"^print\([A-Za-z0-9]+\)";
+
+	string patronPrintln = @"^println\(""[^""]*""\)";
+	string patronPrintlnConVariable = @"^println\([A-Za-z0-9]+\)";
+
+	//Enteros
+	string patronEnteroValConValor = @"^val _?[A-Za-z0-9]*: Int = [0-9]+";
+	string patronEnteroVal = @"^val _?[A-Za-z0-9]*: Int$";
+
+	string patronEnteroVarConValor = @"^var _?[A-Za-z0-9]*: Int = [0-9]+";
+	//string patronEnteroVar = @"var\s+\w+\s*:\s*Int";
+	string patronEnteroVar = @"^var _?[A-Za-z0-9]*: Int";
+
+
+	//Clases
+	Entero entero;
+	// Short mishort;
+	// Long milong;
+	// Float mifloat;
+	// miDouble midouble;
+	// miBoolean boolean;
+	// miChar michar;
+	// Cadena cadena;
+
+
+	//Lista
+	List<Entero> enteroList = new List<Entero>();
+	// List<Short> shortList = new List<Short>();
+	// List<Long> longList = new List<Long>();
+	// List<Float> floatList = new List<Float>();
+	// List<miDouble> doubleList = new List<miDouble>();
+	// List<miBoolean> booleanList = new List<miBoolean>();
+	// List<miChar> charList = new List<miChar>();
+	// List<Cadena> cadenaList = new List<Cadena>();
+
+
+	//Dicioanrio de variables
+	Dictionary<string, bool> variables = new Dictionary<string, bool>();
+
+	void Compilar()
+	{
+		mostrar = string.Empty;
+		valor = escribir;
+
+		Imprimir("Compilando...\n");
+		Verificar();
+
+		//revisar mas adelante la condicion de imprimir una variable (reload)
+	}
+
+	void Verificar()
+	{
+		if (valor.StartsWith("fun main() {") && valor.EndsWith("}"))
+		{
+			valor = borrarCadena("fun main() {");
+			valor = valor.Remove(valor.Length - 1, 1);
+
+			string borrarLinea;
+
+			// int indiceV = valor.IndexOf('v');
+			// int saltoLinea = valor.IndexOf('\n');
+
+			// borrarLinea = valor.Substring(indiceV, saltoLinea + 2);
+			// escribir = borrarLinea;
+
+			//Imprimir
+			// if (valor.StartsWith("print"))
+			// {
+			// 	int indiceComillasInicio = valor.IndexOf('"');
+			// 	int indiceComillasFin = valor.LastIndexOf('"');
+
+			// 	valorEntreComillas = valor.Substring(indiceComillasInicio + 1, indiceComillasFin - indiceComillasInicio - 1);
+
+			// 	int indiceP = valor.IndexOf('p');
+			// 	int indiceParentesis = valor.LastIndexOf(')');
+
+			// 	borrarLinea = valor.Substring(indiceP, indiceParentesis + 2);
+
+			// 	if (Regex.IsMatch(borrarLinea, patronPrint))
+			// 		Imprimir("\n" + valorEntreComillas);
+			// 	else
+			// 		Imprimir("\n\n" + valorEntreComillas);
+
+			// 	valor = borrarCadena(borrarLinea);
+			// 	//escribir = valor;
+			// }
+
+			// if (valor.StartsWith("v"))
+			// {
+			// 	int inicioNombre = valor.IndexOf(' ');
+			// 	int finNombre = valor.IndexOf(':');
+			// 	string nombre = valor.Substring(inicioNombre + 1, finNombre - inicioNombre - 1).Trim();
+
+
+
+			// 	int indiceV = valor.IndexOf('v');
+			// 	int saltoLinea = valor.IndexOf('\n');
+
+			// 	borrarLinea = valor.Substring(indiceV, saltoLinea + 2);
+			// 	escribir = borrarLinea;
+			// 	Imprimir(escribir);
+			// }
+
+
+			while (valor.Length > 1)
+			{
+				//Imprimir
+				if (valor.StartsWith("print"))
+				{
+					int indiceP = valor.IndexOf('p');
+					int indiceParentesis = valor.IndexOf(')');
+
+					//tomo la linea
+					borrarLinea = valor.Substring(indiceP, indiceParentesis + 2);
+
+					if(Regex.IsMatch(valor,patronPrint) || Regex.IsMatch(valor,patronPrintln))
+					{
+						//tomo los valores entre parentesis
+						int indiceComillasInicio = valor.IndexOf('"');
+						int indiceComillasFin = valor.LastIndexOf('"');
+
+						valorEntreComillas = valor
+							.Substring(indiceComillasInicio + 1, indiceComillasFin - indiceComillasInicio - 1);
+
+						if (Regex.IsMatch(borrarLinea, patronPrint))
+							Imprimir("\n" + valorEntreComillas);
+						else
+							Imprimir("\n\n" + valorEntreComillas);
+
+						valor = borrarCadena(borrarLinea);
+					}
+
+					else if(Regex.IsMatch(valor,patronPrintConVariable) 
+						|| Regex.IsMatch(valor,patronPrintlnConVariable))
+					{
+						int indiceParentesisInicio = valor.IndexOf('(');
+						int indiceParentesisFin = valor.IndexOf(')');
+
+						string valorEntreParentesis = valor
+							.Substring(indiceParentesisInicio + 1, indiceParentesisFin - indiceParentesisInicio - 1);
+
+						//antes de seguir aqui debe haber una condicion
+
+						///
+
+						var result = variables.FirstOrDefault(v => v.Key == valorEntreParentesis);
+						if (result.Key != null)
+						{
+							var enteroResult = enteroList.FirstOrDefault(v => v.nombre == result.Key);
+							// var shortResult = shortList.FirstOrDefault(v => v.nombre == result.Key);
+							// var longResult = longList.FirstOrDefault(v => v.nombre == result.Key);
+							// var floatResult = floatList.FirstOrDefault(v => v.nombre == result.Key);
+							// var doubleResult = doubleList.FirstOrDefault(v => v.nombre == result.Key);
+							// var booleanResult = booleanList.FirstOrDefault(v => v.nombre == result.Key);
+							// var charResult = charList.FirstOrDefault(v => v.nombre == result.Key);
+							// var cadenaResult = cadenaList.FirstOrDefault(v => v.nombre == result.Key);
+
+							if (enteroResult is not null)
+								Imprimir("\n"+enteroResult.valor.ToString());
+
+							// else if (shortResult is not null)
+							// 	Console.Write(shortResult.valor);
+
+							// else if (longResult is not null)
+							// 	Console.Write(longResult.valor);
+
+							// else if (floatResult is not null)
+							// 	Console.Write(floatResult.valor);
+
+							// else if (doubleResult is not null)
+							// 	Console.Write(doubleResult.valor);
+
+							// else if (booleanResult is not null)
+							// 	Console.Write(booleanResult.valor);
+
+							// else if (charResult is not null)
+							// 	Console.Write(charResult.valor);
+
+							// else if (cadenaResult is not null)
+							// 	Console.Write(cadenaResult.valor);
+							// else
+							// 	variableNoEncontrada = result.Key;
+							//continue;
+
+							valor = borrarCadena(borrarLinea);
+						}
+					}
+				}
+
+				//Declaracion de variables
+				else if(valor.StartsWith("var") || valor.StartsWith("val"))
+				{
+					int inicioNombre = valor.IndexOf(' ');
+					int finNombre = valor.IndexOf(':');
+					string nombre = valor.Substring(inicioNombre + 1, finNombre - inicioNombre - 1).Trim();
+
+					int indiceV = valor.IndexOf('v');
+					int saltoLinea = valor.IndexOf('\n');
+
+					if(variableExiste(nombre))
+					{
+						//el nombre de variable ya existe
+					}
+					else
+					{
+						if (Regex.IsMatch(valor, patronEnteroVarConValor))
+						{
+							borrarLinea = valor.Substring(indiceV, saltoLinea + 1);
+							valor = borrarCadena(borrarLinea);
+
+							int indiceIgual = borrarLinea.IndexOf('='); // Encuentra la posición del signo '='
+							string valorDespuesDelIgual = borrarLinea.Substring(indiceIgual + 1).Trim(); // Obtén la parte de la cadena después del signo '='
+
+							entero = new Entero(nombre, int.Parse(valorDespuesDelIgual));
+							enteroList.Add(entero);
+							variables.Add(entero.nombre, true);
+						}
+
+						if (Regex.IsMatch(valor, patronEnteroVar))
+						{
+							entero = new Entero(nombre);
+							enteroList.Add(entero);
+							variables.Add(entero.nombre, true);
+
+							borrarLinea = valor.Substring(indiceV, saltoLinea + 2);
+							valor = borrarCadena(borrarLinea);
+						}
+					}
+
+
+					// int indiceV = valor.IndexOf('v');
+					// int indiceEspacio= valor.IndexOf(' ');
+
+					// if(indiceEspacio == - 1)
+					// {
+
+					// }
+
+					//borrarLinea = valor.Substring(indiceV, indiceEspacio + 2);
+				}
+			}
+
+			Imprimir("\n---------------------Compilación completa:)!!!!!");
+		}
+	}
+
+	//condicion en caso de que me falle al buscar el indice
+
+	// 	if (indiceComillasInicio != -1 && indiceComillasFin != -1 && indiceComillasInicio<indiceComillasFin)
+	// {
+
+	// }
+
+
+	bool variableExiste(string nombre)
+	{
+		return variables.ContainsKey(nombre);
+	}
+
+	void verTipoDeDato()
+	{
+		
+		
+		if (Regex.IsMatch(valor, patronEnteroVal))
+		{
+
+		}
+	}
+
+	string borrarCadena(string borrar)
+	{
+		return valor.Substring(borrar.Length).TrimStart();
+	}
+
+	void Imprimir(string valor)
+	{
+		mostrar += valor;
+	}
+}
