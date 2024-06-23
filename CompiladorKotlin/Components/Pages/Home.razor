@@ -42,37 +42,104 @@
 	string patronEnteroVal = @"^val _?[A-Za-z0-9]*: Int$";
 
 	string patronEnteroVarConValor = @"^var _?[A-Za-z0-9]*: Int = [0-9]+";
-	//string patronEnteroVar = @"var\s+\w+\s*:\s*Int";
 	string patronEnteroVar = @"^var _?[A-Za-z0-9]*: Int";
+
+	//Short
+	string patronShortValConValor = @"^val _?[A-Za-z0-9]*: Short = [0-9]+";
+	string patronShortVal = @"^val _?[A-Za-z0-9]*: Short";
+
+	string patronShortVarConValor = @"^var _?[A-Za-z0-9]*: Short = [0-9]+";
+	string patronShortVar = @"^var _?[A-Za-z0-9]*: Short";
+
+	//Long
+	string patronLongValConValor = @"^val _?[A-Za-z0-9]*: Long = [0-9]+";
+	string patronLongVal = @"^val _?[A-Za-z0-9]*: Long";
+
+	string patronLongVarConValor = @"^var _?[A-Za-z0-9]*: Long = [0-9]+";
+	string patronLongVar = @"^var _?[A-Za-z0-9]*: Long";
+
+	//Float
+	string patronFloatValConValor = @"^val _?[A-Za-z0-9]*: Float = [0-9]+";
+	string patronFloatVal = @"^val _?[A-Za-z0-9]*: Float";
+
+	string patronFloatVarConValor = @"^var _?[A-Za-z0-9]*: Float = [0-9]+";
+	string patronFloatVar = @"^var _?[A-Za-z0-9]*: Float";
+
+	//Double
+	string patronDoubleValConValor = @"^val _?[A-Za-z0-9]*: Double = [0-9]+";
+	string patronDoubleVal = @"^val _?[A-Za-z0-9]*: Double";
+
+	string patronDoubleVarConValor = @"^var _?[A-Za-z0-9]*: Double = [0-9]+";
+	string patronDoubleVar = @"^var _?[A-Za-z0-9]*: Double";
+
+	//Boolean
+	string patronBooleanValConValor = @"^val _?[A-Za-z0-9]*: Boolean = [true false]+";///debo arreglar que no se escriba true true
+	string patronBooleanVal = @"^val _?[A-Za-z0-9]*: Boolean";
+
+	string patronBooleanVarConValor = @"^var _?[A-Za-z0-9]*: Boolean = [true false]+";
+	string patronBooleanVar = @"^var _?[A-Za-z0-9]*: Boolean";
+
+	//Char
+	string patronCharValConValor = @"^val _?[A-Za-z0-9]*: Char = '\w'";
+	string patronCharVal = @"^val _?[A-Za-z0-9]*: Char";
+
+	string patronCharVarConValor = @"^var _?[A-Za-z0-9]*: Char = '\w'";
+	string patronCharVar = @"^var _?[A-Za-z0-9]*: Char";
+
+	//String
+	string patronStringValConValor = @"^val _?[A-Za-z0-9]*: String = ""[^""]*""";
+	string patronStringVal = @"^val _?[A-Za-z0-9]*: String";
+
+	string patronStringVarConValor = @"^var _?[A-Za-z0-9]*: String = ""[^""]*""";
+	string patronStringVar = @"^var _?[A-Za-z0-9]*: String";
 
 
 	//Clases
 	Entero entero;
-	// Short mishort;
-	// Long milong;
-	// Float mifloat;
-	// miDouble midouble;
-	// miBoolean boolean;
-	// miChar michar;
-	// Cadena cadena;
+	Short mishort;
+	Long milong;
+	Float mifloat;
+	miDouble midouble;
+	miBoolean boolean;
+	miChar michar;
+	Cadena cadena;
 
 
 	//Lista
-	List<Entero> enteroList = new List<Entero>();
-	// List<Short> shortList = new List<Short>();
-	// List<Long> longList = new List<Long>();
-	// List<Float> floatList = new List<Float>();
-	// List<miDouble> doubleList = new List<miDouble>();
-	// List<miBoolean> booleanList = new List<miBoolean>();
-	// List<miChar> charList = new List<miChar>();
-	// List<Cadena> cadenaList = new List<Cadena>();
+	List<Entero> enteroList;
+	List<Short> shortList;
+	List<Long> longList;
+	List<Float> floatList;
+	List<miDouble> doubleList;
+	List<miBoolean> booleanList;
+	List<miChar> charList;
+	List<Cadena> cadenaList;
 
 
 	//Dicioanrio de variables
 	Dictionary<string, bool> variables = new Dictionary<string, bool>();
 
+	//Varible bool para ver si hay errores
+	bool sinErrores = true;
+
+	//patron para igualar
+	string patronAsignacion = @"^_?[A-Za-z0-9]* = _?[A-Za-z0-9]*";
+
+	//patron para sumar
+	string patronSumar = @"_?[A-Za-z0-9]* = \d+(\.\d+)? \+ \d+(\.\d+)?";
+	string patronRestar = @"_?[A-Za-z0-9]* = \d+(\.\d+)? \- \d+(\.\d+)?";
+
 	void Compilar()
 	{
+		enteroList = new List<Entero>();
+		shortList = new List<Short>();
+		longList = new List<Long>();
+		floatList = new List<Float>();
+		doubleList = new List<miDouble>();
+		booleanList = new List<miBoolean>();
+		charList = new List<miChar>();
+		cadenaList = new List<Cadena>();
+		variables = new Dictionary<string, bool>();
 		mostrar = string.Empty;
 		valor = escribir;
 
@@ -80,6 +147,7 @@
 		Verificar();
 
 		//revisar mas adelante la condicion de imprimir una variable (reload)
+		//El problema esta cuando intento crear e inicializar las variables
 	}
 
 	void Verificar()
@@ -147,11 +215,11 @@
 					//tomo la linea
 					borrarLinea = valor.Substring(indiceP, indiceParentesis + 2);
 
-					if(Regex.IsMatch(valor,patronPrint) || Regex.IsMatch(valor,patronPrintln))
+					if (Regex.IsMatch(valor, patronPrint) || Regex.IsMatch(valor, patronPrintln))
 					{
 						//tomo los valores entre parentesis
-						int indiceComillasInicio = valor.IndexOf('"');
-						int indiceComillasFin = valor.LastIndexOf('"');
+						int indiceComillasInicio = borrarLinea.IndexOf('"');
+						int indiceComillasFin = borrarLinea.LastIndexOf('"');
 
 						valorEntreComillas = valor
 							.Substring(indiceComillasInicio + 1, indiceComillasFin - indiceComillasInicio - 1);
@@ -164,8 +232,8 @@
 						valor = borrarCadena(borrarLinea);
 					}
 
-					else if(Regex.IsMatch(valor,patronPrintConVariable) 
-						|| Regex.IsMatch(valor,patronPrintlnConVariable))
+					else if (Regex.IsMatch(valor, patronPrintConVariable)
+						|| Regex.IsMatch(valor, patronPrintlnConVariable))
 					{
 						int indiceParentesisInicio = valor.IndexOf('(');
 						int indiceParentesisFin = valor.IndexOf(')');
@@ -181,37 +249,37 @@
 						if (result.Key != null)
 						{
 							var enteroResult = enteroList.FirstOrDefault(v => v.nombre == result.Key);
-							// var shortResult = shortList.FirstOrDefault(v => v.nombre == result.Key);
-							// var longResult = longList.FirstOrDefault(v => v.nombre == result.Key);
-							// var floatResult = floatList.FirstOrDefault(v => v.nombre == result.Key);
-							// var doubleResult = doubleList.FirstOrDefault(v => v.nombre == result.Key);
-							// var booleanResult = booleanList.FirstOrDefault(v => v.nombre == result.Key);
-							// var charResult = charList.FirstOrDefault(v => v.nombre == result.Key);
-							// var cadenaResult = cadenaList.FirstOrDefault(v => v.nombre == result.Key);
+							var shortResult = shortList.FirstOrDefault(v => v.nombre == result.Key);
+							var longResult = longList.FirstOrDefault(v => v.nombre == result.Key);
+							var floatResult = floatList.FirstOrDefault(v => v.nombre == result.Key);
+							var doubleResult = doubleList.FirstOrDefault(v => v.nombre == result.Key);
+							var booleanResult = booleanList.FirstOrDefault(v => v.nombre == result.Key);
+							var charResult = charList.FirstOrDefault(v => v.nombre == result.Key);
+							var cadenaResult = cadenaList.FirstOrDefault(v => v.nombre == result.Key);
 
 							if (enteroResult is not null)
-								Imprimir("\n"+enteroResult.valor.ToString());
+								Imprimir("\n" + enteroResult.valor.ToString());
 
-							// else if (shortResult is not null)
-							// 	Console.Write(shortResult.valor);
+							else if (shortResult is not null)
+								Imprimir("\n" + shortResult.valor.ToString());
 
-							// else if (longResult is not null)
-							// 	Console.Write(longResult.valor);
+							else if (longResult is not null)
+								Imprimir("\n" + longResult.valor.ToString());
 
-							// else if (floatResult is not null)
-							// 	Console.Write(floatResult.valor);
+							else if (floatResult is not null)
+								Imprimir("\n" + floatResult.valor.ToString());
 
-							// else if (doubleResult is not null)
-							// 	Console.Write(doubleResult.valor);
+							else if (doubleResult is not null)
+								Imprimir("\n" + doubleResult.valor.ToString());
 
-							// else if (booleanResult is not null)
-							// 	Console.Write(booleanResult.valor);
+							else if (booleanResult is not null)
+								Imprimir("\n" + booleanResult.valor.ToString());
 
-							// else if (charResult is not null)
-							// 	Console.Write(charResult.valor);
+							else if (charResult is not null)
+								Imprimir("\n" + charResult.valor.ToString());
 
-							// else if (cadenaResult is not null)
-							// 	Console.Write(cadenaResult.valor);
+							else if (cadenaResult is not null)
+								Imprimir("\n" + cadenaResult.valor.ToString());
 							// else
 							// 	variableNoEncontrada = result.Key;
 							//continue;
@@ -222,7 +290,7 @@
 				}
 
 				//Declaracion de variables
-				else if(valor.StartsWith("var") || valor.StartsWith("val"))
+				else if (valor.StartsWith("var") || valor.StartsWith("val"))
 				{
 					int inicioNombre = valor.IndexOf(' ');
 					int finNombre = valor.IndexOf(':');
@@ -231,14 +299,19 @@
 					int indiceV = valor.IndexOf('v');
 					int saltoLinea = valor.IndexOf('\n');
 
-					if(variableExiste(nombre))
+					if (variableExiste(nombre))
 					{
-						//el nombre de variable ya existe
+						Imprimir($"\nYa existe una variable con este nombre '{nombre}'");
+						sinErrores = false;
+						break;
 					}
 					else
 					{
-						if (Regex.IsMatch(valor, patronEnteroVarConValor))
+						//Entero
+						if (Regex.IsMatch(valor, patronEnteroVarConValor) 
+							|| Regex.IsMatch(valor, patronEnteroValConValor))
 						{
+							//tratar de poner esto en una funcion
 							borrarLinea = valor.Substring(indiceV, saltoLinea + 1);
 							valor = borrarCadena(borrarLinea);
 
@@ -250,11 +323,214 @@
 							variables.Add(entero.nombre, true);
 						}
 
-						if (Regex.IsMatch(valor, patronEnteroVar))
+						else if (Regex.IsMatch(valor, patronEnteroVar)
+							|| Regex.IsMatch(valor, patronEnteroVal))
 						{
 							entero = new Entero(nombre);
 							enteroList.Add(entero);
 							variables.Add(entero.nombre, true);
+
+							borrarLinea = valor.Substring(indiceV, saltoLinea + 2);
+							valor = borrarCadena(borrarLinea);
+						}
+
+						//Short
+						else if (Regex.IsMatch(valor, patronShortVarConValor)
+							|| Regex.IsMatch(valor, patronShortValConValor))
+						{
+							//tratar de poner esto en una funcion
+							borrarLinea = valor.Substring(indiceV, saltoLinea + 1);
+							valor = borrarCadena(borrarLinea);
+
+							int indiceIgual = borrarLinea.IndexOf('='); // Encuentra la posición del signo '='
+							string valorDespuesDelIgual = borrarLinea.Substring(indiceIgual + 1).Trim(); // Obtén la parte de la cadena después del signo '='
+
+							mishort = new Short(nombre, short.Parse(valorDespuesDelIgual));
+							shortList.Add(mishort);
+							variables.Add(mishort.nombre, true);
+						}
+
+						else if (Regex.IsMatch(valor, patronShortVar)
+							|| Regex.IsMatch(valor, patronShortVal))
+						{
+							mishort = new Short(nombre);
+							shortList.Add(mishort);
+							variables.Add(mishort.nombre, true);
+
+							borrarLinea = valor.Substring(indiceV, saltoLinea + 2);
+							valor = borrarCadena(borrarLinea);
+						}
+
+						//Long
+						else if (Regex.IsMatch(valor, patronLongVarConValor)
+							|| Regex.IsMatch(valor, patronLongValConValor))
+						{
+							//tratar de poner esto en una funcion
+							borrarLinea = valor.Substring(indiceV, saltoLinea + 1);
+							valor = borrarCadena(borrarLinea);
+
+							int indiceIgual = borrarLinea.IndexOf('='); // Encuentra la posición del signo '='
+							string valorDespuesDelIgual = borrarLinea.Substring(indiceIgual + 1).Trim(); // Obtén la parte de la cadena después del signo '='
+
+							milong = new Long(nombre, long.Parse(valorDespuesDelIgual));
+							longList.Add(milong);
+							variables.Add(milong.nombre, true);
+						}
+
+						else if (Regex.IsMatch(valor, patronLongVar)
+							|| Regex.IsMatch(valor, patronLongVal))
+						{
+							milong = new Long(nombre);
+							longList.Add(milong);
+							variables.Add(milong.nombre, true);
+
+							borrarLinea = valor.Substring(indiceV, saltoLinea + 2);
+							valor = borrarCadena(borrarLinea);
+						}
+
+						//Float
+						else if (Regex.IsMatch(valor, patronFloatVarConValor)
+							|| Regex.IsMatch(valor, patronFloatValConValor))
+						{
+							//tratar de poner esto en una funcion
+							borrarLinea = valor.Substring(indiceV, saltoLinea + 1);
+							valor = borrarCadena(borrarLinea);
+
+							int indiceIgual = borrarLinea.IndexOf('='); // Encuentra la posición del signo '='
+							string valorDespuesDelIgual = borrarLinea.Substring(indiceIgual + 1).Trim(); // Obtén la parte de la cadena después del signo '='
+
+							mifloat = new Float(nombre, float.Parse(valorDespuesDelIgual));
+							floatList.Add(mifloat);
+							variables.Add(mifloat.nombre, true);
+						}
+
+						else if(Regex.IsMatch(valor, patronFloatVar)
+							|| Regex.IsMatch(valor, patronFloatVal))
+						{
+							mifloat = new Float(nombre);
+							floatList.Add(mifloat);
+							variables.Add(mifloat.nombre, true);
+
+							borrarLinea = valor.Substring(indiceV, saltoLinea + 2);
+							valor = borrarCadena(borrarLinea);
+						}
+
+						//Double
+						else if(Regex.IsMatch(valor, patronDoubleVarConValor)
+							|| Regex.IsMatch(valor, patronDoubleValConValor))
+						{
+							//tratar de poner esto en una funcion
+							borrarLinea = valor.Substring(indiceV, saltoLinea + 1);
+							valor = borrarCadena(borrarLinea);
+
+							int indiceIgual = borrarLinea.IndexOf('='); // Encuentra la posición del signo '='
+							string valorDespuesDelIgual = borrarLinea.Substring(indiceIgual + 1).Trim(); // Obtén la parte de la cadena después del signo '='
+
+							midouble = new miDouble(nombre, double.Parse(valorDespuesDelIgual));
+							doubleList.Add(midouble);
+							variables.Add(midouble.nombre, true);
+						}
+
+						else if (Regex.IsMatch(valor, patronDoubleVar)
+							|| Regex.IsMatch(valor, patronDoubleVal))
+						{
+							midouble = new miDouble(nombre);
+							doubleList.Add(midouble);
+							variables.Add(midouble.nombre, true);
+
+							borrarLinea = valor.Substring(indiceV, saltoLinea + 2);
+							valor = borrarCadena(borrarLinea);
+						}
+
+						//Boolean
+						else if(Regex.IsMatch(valor, patronBooleanVarConValor)
+							|| Regex.IsMatch(valor, patronBooleanValConValor))
+						{
+							//tratar de poner esto en una funcion
+							borrarLinea = valor.Substring(indiceV, saltoLinea + 1);
+							valor = borrarCadena(borrarLinea);
+
+							int indiceIgual = borrarLinea.IndexOf('='); // Encuentra la posición del signo '='
+							string valorDespuesDelIgual = borrarLinea.Substring(indiceIgual + 1).Trim(); // Obtén la parte de la cadena después del signo '='
+
+							boolean = new miBoolean(nombre, bool.Parse(valorDespuesDelIgual));
+							booleanList.Add(boolean);
+							variables.Add(boolean.nombre, true);
+						}
+
+						else if (Regex.IsMatch(valor, patronBooleanVar)
+							|| Regex.IsMatch(valor, patronBooleanVal))
+						{
+							boolean = new miBoolean(nombre);
+							booleanList.Add(boolean);
+							variables.Add(boolean.nombre, true);
+
+							borrarLinea = valor.Substring(indiceV, saltoLinea + 2);
+							valor = borrarCadena(borrarLinea);
+						}
+
+						//Char
+						else if(Regex.IsMatch(valor, patronCharVarConValor)
+							|| Regex.IsMatch(valor, patronCharValConValor))
+						{
+							//tratar de poner esto en una funcion
+							borrarLinea = valor.Substring(indiceV, saltoLinea + 1);
+							valor = borrarCadena(borrarLinea);
+
+							// Encuentra el índice del signo '='
+							int indiceIgual = borrarLinea.IndexOf('=');
+
+							// Encuentra el índice de las comillas simples que rodean el carácter
+							int inicioChar = borrarLinea.IndexOf('\'', indiceIgual);
+							int finChar = borrarLinea.IndexOf('\'', inicioChar + 1);
+
+							// Extrae el carácter entre las comillas simples
+							char charValor = borrarLinea.Substring(inicioChar + 1, finChar - inicioChar - 1)[0];
+
+							michar = new miChar(nombre, charValor);
+							charList.Add(michar);
+							variables.Add(michar.nombre, true);
+						}
+
+						else if(Regex.IsMatch(valor, patronCharVar)
+							|| Regex.IsMatch(valor, patronCharVal))
+						{
+							michar = new miChar(nombre);
+							charList.Add(michar);
+							variables.Add(michar.nombre, true);
+
+							borrarLinea = valor.Substring(indiceV, saltoLinea + 2);
+							valor = borrarCadena(borrarLinea);
+						}
+
+						//Cadena
+						else if (Regex.IsMatch(valor, patronStringVarConValor)
+							|| Regex.IsMatch(valor, patronStringValConValor))
+						{
+							//tratar de poner esto en una funcion
+							borrarLinea = valor.Substring(indiceV, saltoLinea + 1);
+							valor = borrarCadena(borrarLinea);
+
+							// Encuentra el índice del signo '='
+							int indiceIgual = borrarLinea.IndexOf('=');
+
+							// Obtén la parte de la cadena después del signo '='
+							string valorDespuesDelIgual = borrarLinea.Substring(indiceIgual + 1).Trim();
+
+							// Elimina las comillas dobles alrededor del valor
+							valorDespuesDelIgual = valorDespuesDelIgual.Trim('"', ' ');
+
+							cadena = new Cadena(nombre, valorDespuesDelIgual);
+							cadenaList.Add(cadena);
+							variables.Add(cadena.nombre, true);
+						}
+
+						else if (Regex.IsMatch(valor, patronStringVar)
+							|| Regex.IsMatch(valor, patronStringVal))
+						{
+							cadena = new Cadena(nombre);
+							cadenaList.Add(cadena);
+							variables.Add(cadena.nombre, true);
 
 							borrarLinea = valor.Substring(indiceV, saltoLinea + 2);
 							valor = borrarCadena(borrarLinea);
@@ -272,9 +548,162 @@
 
 					//borrarLinea = valor.Substring(indiceV, indiceEspacio + 2);
 				}
+
+				else if (Regex.IsMatch(valor, patronSumar))
+				{
+					int saltoLinea = valor.IndexOf('\n');
+
+					borrarLinea = valor.Substring(0, saltoLinea + 2);
+					valor = borrarCadena(borrarLinea);
+
+					if (Sumar(borrarLinea))
+					{
+						sinErrores = true;
+						break;
+					}
+				}
+
+				else if (Regex.IsMatch(valor, patronRestar))
+				{
+					int saltoLinea = valor.IndexOf('\n');
+
+					borrarLinea = valor.Substring(0, saltoLinea + 2);
+					valor = borrarCadena(borrarLinea);
+
+					if (Restar(borrarLinea))
+					{
+						sinErrores = true;
+						break;
+					}
+				}
+
+				else if (Regex.IsMatch(valor, patronAsignacion))
+				{
+					int saltoLinea = valor.IndexOf('\n');
+
+					borrarLinea = valor.Substring(0, saltoLinea + 2);
+					valor = borrarCadena(borrarLinea);
+
+					int indiceIgual = borrarLinea.IndexOf('='); // Encuentra la posición del signo '='
+					string variable1 = borrarLinea.Substring(0, indiceIgual).Trim();
+					string variable2 = borrarLinea.Substring(indiceIgual + 1).Trim();
+
+
+					var result = variables.FirstOrDefault(v => v.Key == variable1);
+					if (result.Key != null)
+					{
+						var enteroResult = enteroList.FirstOrDefault(v => v.nombre == result.Key);
+						var shortResult = shortList.FirstOrDefault(v => v.nombre == result.Key);
+						var longResult = longList.FirstOrDefault(v => v.nombre == result.Key);
+						var floatResult = floatList.FirstOrDefault(v => v.nombre == result.Key);
+						var doubleResult = doubleList.FirstOrDefault(v => v.nombre == result.Key);
+						var booleanResult = booleanList.FirstOrDefault(v => v.nombre == result.Key);
+						var charResult = charList.FirstOrDefault(v => v.nombre == result.Key);
+						var cadenaResult = cadenaList.FirstOrDefault(v => v.nombre == result.Key);
+
+						var result2 = variables.FirstOrDefault(v => v.Key == variable2);
+
+						if (result2.Key == null)
+						{
+							if (enteroResult is not null && int.TryParse(variable2, out int datoEntero))
+								enteroResult.valor = datoEntero;
+
+							else if (shortResult is not null && short.TryParse(variable2, out short datoShort))
+								shortResult.valor = datoShort;
+
+							else if (longResult is not null && long.TryParse(variable2, out long datoLong))
+								longResult.valor = datoLong;
+
+							else if (floatResult is not null && float.TryParse(variable2, out float datoFloat))
+								floatResult.valor = datoFloat;
+
+							else if (doubleResult is not null && double.TryParse(variable2, out double datoDouble))
+								doubleResult.valor = datoDouble;
+
+							else if (booleanResult is not null && bool.TryParse(variable2, out bool datoBoolean))
+								booleanResult.valor = datoBoolean;
+
+							else if (charResult is not null)
+							{
+								// Si es un char, asegúrate de que el valor tenga comillas simples
+								if (variable2.Length != 3 || variable2[0] != '\'' || variable2[2] != '\'')
+								{
+									Imprimir($"\nSe esperaban comillas simples para el tipo de dato char en la variable '{variable1}'");
+									sinErrores = false;
+									break;
+								}
+								charResult.valor = variable2[1]; // Asigna el valor entre las comillas simples
+							}
+							else if (cadenaResult is not null)
+							{
+								// Si es un string, asegúrate de que el valor tenga comillas dobles
+								if (variable2.Length < 2 || variable2[0] != '"' || variable2[variable2.Length - 1] != '"')
+								{
+									Imprimir($"\nSe esperaban comillas dobles para el tipo de dato string en la variable '{variable1}'");
+									sinErrores = false;
+									break;
+								}
+								cadenaResult.valor = variable2.Substring(1, variable2.Length - 2); // Asigna el valor entre las comillas dobles
+							}
+
+							else
+							{
+								Imprimir($"\nLos tipos de datos '{variable1}' y '{variable2}' no son compatibles");
+								sinErrores = false;
+								break;
+							}
+						}
+						else
+						{
+							var entero2Result = enteroList.FirstOrDefault(v => v.nombre == result2.Key);
+							var short2Result = shortList.FirstOrDefault(v => v.nombre == result2.Key);
+							var long2Result = longList.FirstOrDefault(v => v.nombre == result2.Key);
+							var float2Result = floatList.FirstOrDefault(v => v.nombre == result2.Key);
+							var double2Result = doubleList.FirstOrDefault(v => v.nombre == result2.Key);
+							var boolean2Result = booleanList.FirstOrDefault(v => v.nombre == result2.Key);
+							var char2Result = charList.FirstOrDefault(v => v.nombre == result2.Key);
+							var cadena2Result = cadenaList.FirstOrDefault(v => v.nombre == result2.Key);
+
+							if (enteroResult is not null && entero2Result is not null)
+								enteroResult.valor = entero2Result.valor;
+
+							else if (shortResult is not null && short2Result is not null)
+								shortResult.valor = short2Result.valor;
+
+							else if (longResult is not null && long2Result is not null)
+								longResult.valor = long2Result.valor;
+
+							else if (floatResult is not null && float2Result is not null)
+								floatResult.valor = float2Result.valor;
+
+							else if (doubleResult is not null && double2Result is not null)
+								doubleResult.valor = double2Result.valor;
+
+							else if (booleanResult is not null && boolean2Result is not null)
+								booleanResult.valor = boolean2Result.valor;
+
+							else if (charResult is not null && char2Result is not null)
+							{
+								charResult.valor = char2Result.valor;
+							}
+							else if (cadenaResult is not null && cadena2Result is not null)
+							{
+								cadenaResult.valor = cadena2Result.valor;
+							}
+
+							else
+								Imprimir($"\nLos tipos de datos '{variable1}' y '{variable2}' no son compatibles");
+						}
+
+						//continue;
+					}
+				}
 			}
 
-			Imprimir("\n---------------------Compilación completa:)!!!!!");
+			if(sinErrores)
+				Imprimir("\n-----------------------------------------------------------------------------------------------------------------------------\nCompilación completa sin errores:)!!!!!");
+			else
+				Imprimir("\n-----------------------------------------------------------------------------------------------------------------------------\nCompilación con errores:(!!!!!");
 		}
 	}
 
@@ -284,6 +713,111 @@
 	// {
 
 	// }
+
+	//Operaciones aritmeticas
+	bool Sumar(string dato)
+	{
+		//utilizar un ciclo para que me busque las variables
+		int indiceIgual = dato.IndexOf('=');
+
+		int indiceMas = dato.IndexOf('+', indiceIgual);
+		string variable = dato.Substring(0, indiceIgual).Trim();
+
+		string dato1 = dato.Substring(indiceIgual + 1, indiceMas - indiceIgual - 1).Trim();
+		string dato2 = dato.Substring(indiceMas + 1).Trim();
+
+		var result = variables.FirstOrDefault(v => v.Key == variable);
+		if (result.Key != null)
+		{
+			var enteroResult = enteroList.FirstOrDefault(v => v.nombre == result.Key);
+			var shortResult = shortList.FirstOrDefault(v => v.nombre == result.Key);
+			var longResult = longList.FirstOrDefault(v => v.nombre == result.Key);
+			var floatResult = floatList.FirstOrDefault(v => v.nombre == result.Key);
+			var doubleResult = doubleList.FirstOrDefault(v => v.nombre == result.Key);
+			var cadenaResult = cadenaList.FirstOrDefault(v => v.nombre == result.Key);
+
+			if (enteroResult is not null && int.TryParse(dato1, out int entero1) && int.TryParse(dato2, out int entero2))
+				enteroResult.valor = entero1 + entero2;
+
+			else if (shortResult is not null && short.TryParse(dato1, out short short1) && short.TryParse(dato2, out short short2))
+				shortResult.valor = (short)(short1 + short2);
+
+			else if (longResult is not null && long.TryParse(dato1, out long long1) && long.TryParse(dato2, out long long2))
+				longResult.valor = long1 + long2;
+
+			else if (floatResult is not null && float.TryParse(dato1, out float float1) && float.TryParse(dato2, out float float2))
+				floatResult.valor = float1 + float2;
+
+			else if (doubleResult is not null && double.TryParse(dato1, out double double1) && double.TryParse(dato2, out double double2))
+				doubleResult.valor = double1 + double2;
+
+
+			else
+			{
+				Imprimir($"\nLos tipos de datos '{variable}', '{dato1}' y '{dato2}' no son compatibles");
+				return true;
+			}
+		}
+		else
+		{
+			Imprimir($"\nNo se reconoce '{variable}'");
+			return true;
+		}
+
+		return false;
+	}
+
+	bool Restar(string dato)
+	{
+		//utilizar un ciclo para que me busque las variables
+		int indiceIgual = dato.IndexOf('=');
+
+		int indiceMenos = dato.IndexOf('-', indiceIgual);
+		string variable = dato.Substring(0, indiceIgual).Trim();
+
+		string dato1 = dato.Substring(indiceIgual + 1, indiceMenos - indiceIgual - 1).Trim();
+		string dato2 = dato.Substring(indiceMenos + 1).Trim();
+
+		var result = variables.FirstOrDefault(v => v.Key == variable);
+		if (result.Key != null)
+		{
+			var enteroResult = enteroList.FirstOrDefault(v => v.nombre == result.Key);
+			var shortResult = shortList.FirstOrDefault(v => v.nombre == result.Key);
+			var longResult = longList.FirstOrDefault(v => v.nombre == result.Key);
+			var floatResult = floatList.FirstOrDefault(v => v.nombre == result.Key);
+			var doubleResult = doubleList.FirstOrDefault(v => v.nombre == result.Key);
+			var cadenaResult = cadenaList.FirstOrDefault(v => v.nombre == result.Key);
+
+			if (enteroResult is not null && int.TryParse(dato1, out int entero1) && int.TryParse(dato2, out int entero2))
+				enteroResult.valor = entero1 - entero2;
+
+			else if (shortResult is not null && short.TryParse(dato1, out short short1) && short.TryParse(dato2, out short short2))
+				shortResult.valor = (short)(short1 - short2);
+
+			else if (longResult is not null && long.TryParse(dato1, out long long1) && long.TryParse(dato2, out long long2))
+				longResult.valor = long1 - long2;
+
+			else if (floatResult is not null && float.TryParse(dato1, out float float1) && float.TryParse(dato2, out float float2))
+				floatResult.valor = float1 - float2;
+
+			else if (doubleResult is not null && double.TryParse(dato1, out double double1) && double.TryParse(dato2, out double double2))
+				doubleResult.valor = double1 - double2;
+
+
+			else
+			{
+				Imprimir($"\nLos tipos de datos '{variable}', '{dato1}' y '{dato2}' no son compatibles");
+				return true;
+			}
+		}
+		else
+		{
+			Imprimir($"\nNo se reconoce '{variable}'");
+			return true;
+		}
+
+		return false;
+	}
 
 
 	bool variableExiste(string nombre)
