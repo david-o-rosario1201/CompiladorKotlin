@@ -54,7 +54,7 @@
 
 	//Enteros
 	string patronEnteroValConValor = @"^val _?[A-Za-z0-9]*: Int = [0-9]+";
-	string patronEnteroVal = @"^val _?[A-Za-z0-9]*: Int$";
+	string patronEnteroVal = @"^val _?[A-Za-z0-9]*: Int";
 
 	string patronEnteroVarConValor = @"^var _?[A-Za-z0-9]*: Int = [0-9]+";
 	string patronEnteroVar = @"^var _?[A-Za-z0-9]*: Int";
@@ -453,7 +453,7 @@
 								enteroList.Add(entero);
 								variables.Add(entero.nombre, true);
 
-								borrarLinea = valor.Substring(indiceV, saltoLinea + 2);
+								borrarLinea = valor.Substring(indiceV, saltoLinea);
 								valor = borrarCadena(borrarLinea);
 							}
 							else
