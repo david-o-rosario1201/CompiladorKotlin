@@ -157,7 +157,7 @@
 	//else
 	string patronElse = @"else";
 
-	void Compilar()
+	async Task Compilar()
 	{
 		//Inicializar
 		enteroList = new List<Entero>();
@@ -171,9 +171,19 @@
 		variables = new Dictionary<string, bool>();
 		mostrar = string.Empty;
 		valor = escribir;
+		//
+		sinErrores = true;
 
 		Imprimir("Compilando...\n");
-		Verificar();
+		await Task.Delay(1000);
+
+		if(String.IsNullOrEmpty(valor))
+		{
+			Imprimir("\n*Se esperaba \"fun main() {}\" \n\n----------------------------------------------------------"
+			+ "-----------------------------------------------------\nCompilación con errores:(!!!!!");
+		}
+		else
+			Verificar();
 
 		//revisar mas adelante la condicion de imprimir una variable (reload)
 		//El problema esta cuando intento crear e inicializar las variables
@@ -244,7 +254,9 @@
 				}
 
 				//Imprimir
-				else if (valor.StartsWith("print"))
+				else if (Regex.IsMatch(valor, patronPrint) || Regex.IsMatch(valor, patronPrintln)
+					|| Regex.IsMatch(valor, patronPrintConVariable)
+						|| Regex.IsMatch(valor, patronPrintlnConVariable))
 				{
 					int indiceP = valor.IndexOf('p');
 					int indiceParentesis = valor.IndexOf(')');
@@ -304,33 +316,88 @@
 								var cadenaResult = cadenaList.FirstOrDefault(v => v.nombre == result.Key);
 
 								if (enteroResult is not null)
-									Imprimir("\n" + enteroResult.valor.ToString());
+								{
+									if (Regex.IsMatch(borrarLinea, patronPrintConVariable))
+										Imprimir("\n" + enteroResult.valor.ToString());
+									else
+										Imprimir("\n\n" + enteroResult.valor.ToString());
+								}
 
 								else if (shortResult is not null)
-									Imprimir("\n" + shortResult.valor.ToString());
+								{
+									if (Regex.IsMatch(borrarLinea, patronPrintConVariable))
+										Imprimir("\n" + shortResult.valor.ToString());
+									else
+										Imprimir("\n\n" + shortResult.valor.ToString());
+								}
 
 								else if (longResult is not null)
-									Imprimir("\n" + longResult.valor.ToString());
+								{
+									if (Regex.IsMatch(borrarLinea, patronPrintConVariable))
+										Imprimir("\n" + longResult.valor.ToString());
+									else
+										Imprimir("\n\n" + longResult.valor.ToString());
+								}
 
 								else if (floatResult is not null)
-									Imprimir("\n" + floatResult.valor.ToString());
+								{
+									if (Regex.IsMatch(borrarLinea, patronPrintConVariable))
+										Imprimir("\n" + longResult.valor.ToString());
+									else
+										Imprimir("\n\n" + longResult.valor.ToString());
+								}
 
 								else if (doubleResult is not null)
-									Imprimir("\n" + doubleResult.valor.ToString());
+								{
+									if (Regex.IsMatch(borrarLinea, patronPrintConVariable))
+										Imprimir("\n" + doubleResult.valor.ToString());
+									else
+										Imprimir("\n\n" + doubleResult.valor.ToString());
+								}
 
 								else if (booleanResult is not null)
-									Imprimir("\n" + booleanResult.valor.ToString());
+								{
+									if (Regex.IsMatch(borrarLinea, patronPrintConVariable))
+										Imprimir("\n" + booleanResult.valor.ToString());
+									else
+										Imprimir("\n\n" + booleanResult.valor.ToString());
+								}
 
 								else if (charResult is not null)
-									Imprimir("\n" + charResult.valor.ToString());
+								{
+									if (Regex.IsMatch(borrarLinea, patronPrintConVariable))
+										Imprimir("\n" + charResult.valor.ToString());
+									else
+										Imprimir("\n\n" + charResult.valor.ToString());
+								}
 
 								else if (cadenaResult is not null)
-									Imprimir("\n" + cadenaResult.valor.ToString());
-								// else
-								// 	variableNoEncontrada = result.Key;
-								//continue;
+								{
+									if (Regex.IsMatch(borrarLinea, patronPrintConVariable))
+										Imprimir("\n" + cadenaResult.valor.ToString());
+									else
+										Imprimir("\n" + cadenaResult.valor.ToString());
+								}
 
 								valor = borrarCadena(borrarLinea);
+							}
+							else
+							{
+								if (Regex.IsMatch(valorEntreParentesis, @"\d"))
+								{
+									if (borrarLinea.StartsWith("println"))
+										Imprimir("\n\n" + valorEntreParentesis.ToString());
+									else
+										Imprimir("\n" + valorEntreParentesis.ToString());
+
+									valor = borrarCadena(borrarLinea);
+								}
+								else
+								{
+									sinErrores = false;
+									Imprimir($"\n*No se recoce \"{valorEntreParentesis}\"");
+									break;
+								}
 							}
 						}
 						else
@@ -339,7 +406,7 @@
 				}
 
 				//Declaracion de variables
-				else if (valor.StartsWith("var") || valor.StartsWith("val"))
+				else if (valor.StartsWith("var ") || valor.StartsWith("val "))
 				{
 					int inicioNombre = valor.IndexOf(' ');
 					int finNombre = valor.IndexOf(':');
@@ -875,8 +942,12 @@
 					string variable1 = borrarLinea.Substring(0, primerEspacio).Trim();
 					nombres.Add(variable1);
 
-					//buscar la segunda variable
+					//tomar condicional
+					primerEspacio = borrarLinea.IndexOf(' ');
 					int segundoEspacio = borrarLinea.LastIndexOf(' ');
+					string condicional = borrarLinea.Substring(primerEspacio, segundoEspacio - 3).Trim();
+
+					//buscar la segunda variable
 					var borrar = borrarLinea.Substring(0, segundoEspacio);
 					borrarLinea = borrarVariablesCadena(borrarLinea,borrar);
 
@@ -886,6 +957,8 @@
 					nombres.Add(variable2);
 
 					int Index = 0;
+					int condicional1 = 0;
+					int condicional2 = 0;
 
 					foreach(var nombre in nombres)
 					{
@@ -908,9 +981,13 @@
 								if (enteroResult is not null)
 								{
 									if (Index == 0)
-										varEntero1 = enteroResult.valor;
+										condicional1 = enteroResult.valor;
+
 									else
-										varEntero2 = enteroResult.valor;
+									{
+										condicional2 = enteroResult.valor;
+										Condiciones(condicional,condicional1,condicional2);
+									}
 								}
 
 								if (result.Key == null)
@@ -1009,92 +1086,25 @@
 						else
 							break;
 					}
-
-					//Realizar conparacion variable1 con variable2
-					if (varEntero1 == varEntero2)
-					{
-						int indiceLLave = valor.IndexOf('}');
-						borrarLinea = valor.Substring(0, indiceLLave + 1).Trim();
-						var guardarTrue = borrarLinea;
-
-						//borrar ultimo }
-						var borrar1 = valor;
-						valor = borrarCadena(borrarLinea);
-						borrarLinea = borrarLinea.Substring(1).Trim();
-						borrarLinea = borrarLinea.Remove(borrarLinea.Length - 1, 1).Trim();
-
-						if (Regex.IsMatch(valor, patronElse))
-						{
-							valor = borrarCadena("else").Trim();
-
-							int indiceElse = valor.IndexOf('}');
-							borrarLinea = valor.Substring(0, indiceElse + 1).Trim();
-							valor = borrarCadena(borrarLinea);
-							guardarTrue = borrarVariablesCadena(guardarTrue,"{");
-							guardarTrue = guardarTrue.Remove(guardarTrue.Length - 1, 1);
-
-							var indexar = guardarTrue + valor;
-							valor = indexar.Trim();
-						}
-						else
-						{
-							//guarda el string actual
-							var borrar2 = valor + borrarLinea;
-							valor = borrar2;
-						}
-					}
-					else
-					{
-						int indiceLLave = valor.IndexOf('}');
-						borrarLinea = valor.Substring(0, indiceLLave + 1).Trim();
-
-						//borrar ultimo }
-						var borrar1 = valor;
-						valor = borrarCadena(borrarLinea);
-						// borrarLinea = borrarLinea.Substring(1).Trim();
-						// borrarLinea = borrarLinea.Remove(borrarLinea.Length - 1, 1).Trim();
-
-						// //guarda el string actual
-						// var borrar2 = valor + borrarLinea;
-						// valor = borrar2;
-
-						if(Regex.IsMatch(valor,patronElse))
-						{
-							valor = borrarCadena("else").Trim();
-
-							int indiceElse = valor.IndexOf('}');
-							borrarLinea = valor.Substring(0,indiceElse+1).Trim();
-							valor = borrarCadena(borrarLinea);
-							//borrar "else {}"
-							borrarLinea = borrarVariablesCadena(borrarLinea,"{");
-							borrarLinea = borrarLinea.Remove(borrarLinea.Length - 1, 1).Trim();
-
-
-							var indexar = borrarLinea + valor;
-							valor = indexar;
-
-							//
-							// int indiceElse = valor.IndexOf('}');
-							// borrarLinea = valor.Substring(0, indiceElse);
-							// valor = borrarCadena(borrarLinea);
-
-							// //borrar "else {}"
-							// int indice = borrarLinea.IndexOf('{');
-							// borrarLinea = borrarLinea.Substring(0, indice).Trim();
-							// borrarLinea = borrarLinea.Remove(borrarLinea.Length - 1, 1).Trim();
-
-							// var indexar = borrarLinea + valor;
-							// valor = indexar;
-						}
-					}
+				}
+				else
+				{
+					sinErrores = false;
+					Imprimir($"\n*No se reconoce  \"{valor}\"");
+					break;
 				}
 			}
-
-			if(sinErrores)
-				Imprimir("\n-----------------------------------------------------------------------------------------------------------------------------\nCompilación completa sin errores:)!!!!!");
-			else
-				Imprimir("\n-----------------------------------------------------------------------------------------------------------------------------\nCompilación con errores:(!!!!!");
 		}
+		else
+		{
+			sinErrores = false;
+			Imprimir("\n*Se esperaba 'fun main() {}'");
+		}
+
+		if (sinErrores)
+			Imprimir("\n---------------------------------------------------------------------------------------------------------------\nCompilación completa sin errores:)!!!!!");
+		else
+			Imprimir("\n---------------------------------------------------------------------------------------------------------------\nCompilación con errores:(!!!!!");
 	}
 
 	//condicion en caso de que me falle al buscar el indice
@@ -1103,6 +1113,86 @@
 	// {
 
 	// }
+
+	void Condiciones(string condicional, int condicional1, int condicional2)
+	{
+		bool resultado = Comparar(condicional, condicional1, condicional2);
+		ManejarResultado(resultado);
+	}
+
+	bool Comparar(string condicional, int condicional1, int condicional2)
+	{
+		switch (condicional)
+		{
+			case "==":
+				return condicional1 == condicional2;
+			case "!=":
+				return condicional1 != condicional2;
+			case "<":
+				return condicional1 < condicional2;
+			case "<=":
+				return condicional1 <= condicional2;
+			case ">":
+				return condicional1 > condicional2;
+			case ">=":
+				return condicional1 >= condicional2;
+			default:
+				throw new ArgumentException("Condicional no válido");
+		}
+	}
+
+	void ManejarResultado(bool resultado)
+	{
+		int indiceLLave = valor.IndexOf('}');
+		var borrarLinea = valor.Substring(0, indiceLLave + 1).Trim();
+
+		if (resultado)
+		{
+			var guardarTrue = borrarLinea;
+			valor = borrarCadena(borrarLinea);
+			borrarLinea = borrarLinea.Substring(1).Trim();
+			borrarLinea = borrarLinea.Remove(borrarLinea.Length - 1, 1).Trim();
+
+			if (Regex.IsMatch(valor, patronElse))
+			{
+				valor = borrarCadena("else").Trim();
+
+				int indiceElse = valor.IndexOf('}');
+				borrarLinea = valor.Substring(0, indiceElse + 1).Trim();
+				valor = borrarCadena(borrarLinea);
+				guardarTrue = borrarVariablesCadena(guardarTrue, "{");
+				guardarTrue = guardarTrue.Remove(guardarTrue.Length - 1, 1);
+
+				var indexar = guardarTrue + valor;
+				valor = indexar.Trim();
+			}
+			else
+			{
+				var borrar2 = valor + borrarLinea;
+				valor = borrar2;
+			}
+		}
+		else
+		{
+			valor = borrarCadena(borrarLinea);
+
+			if (Regex.IsMatch(valor, patronElse))
+			{
+				valor = borrarCadena("else").Trim();
+
+				int indiceElse = valor.IndexOf('}');
+				borrarLinea = valor.Substring(0, indiceElse + 1).Trim();
+				valor = borrarCadena(borrarLinea);
+				borrarLinea = borrarVariablesCadena(borrarLinea, "{");
+				borrarLinea = borrarLinea.Remove(borrarLinea.Length - 1, 1).Trim();
+
+				var indexar = borrarLinea + valor;
+				valor = indexar;
+			}
+		}
+	}
+
+
 
 	//Operaciones aritmeticas
 	bool Sumar(string dato)
@@ -1888,7 +1978,7 @@
 		{
 			if (nombre == tipo)
 			{
-				Imprimir($"\n'{nombre}' es una palabra reservada");
+				Imprimir($"\n\"{nombre}\" es una palabra reservada");
 				sinErrores = false;
 				return true;
 			}
