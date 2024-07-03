@@ -942,10 +942,13 @@
 					string variable1 = borrarLinea.Substring(0, primerEspacio).Trim();
 					nombres.Add(variable1);
 
+					//borrar primera variable
+					borrarLinea = borrarVariablesCadena(borrarLinea,variable1);
+
 					//tomar condicional
 					primerEspacio = borrarLinea.IndexOf(' ');
 					int segundoEspacio = borrarLinea.LastIndexOf(' ');
-					string condicional = borrarLinea.Substring(primerEspacio, segundoEspacio - 3).Trim();
+					string condicional = borrarLinea.Substring(0, primerEspacio).Trim();
 
 					//buscar la segunda variable
 					var borrar = borrarLinea.Substring(0, segundoEspacio);
@@ -957,8 +960,25 @@
 					nombres.Add(variable2);
 
 					int Index = 0;
-					int condicional1 = 0;
-					int condicional2 = 0;
+					//Enteros
+					int condicionalEntero1 = 0;
+					int condicionalEntero2 = 0;
+
+					//Shor
+					short condicionalShort1 = 0;
+					short condicionalShort2 = 0;
+
+					//Long
+					long condicionalLong1 = 0;
+					long condicionalLong2 = 0;
+
+					//Float
+					float condicionalFloat1 = 0f;
+					float condicionalFloat2 = 0f;
+
+					//Double
+					double condicionalDouble1 = 0d;
+					double condicionalDouble2 = 0d;
 
 					foreach(var nombre in nombres)
 					{
@@ -981,12 +1001,12 @@
 								if (enteroResult is not null)
 								{
 									if (Index == 0)
-										condicional1 = enteroResult.valor;
+										condicionalEntero1 = enteroResult.valor;
 
 									else
 									{
-										condicional2 = enteroResult.valor;
-										Condiciones(condicional,condicional1,condicional2);
+										condicionalEntero2 = enteroResult.valor;
+										CondicionesEntero(condicional, condicionalEntero1, condicionalEntero2);
 									}
 								}
 
@@ -1081,6 +1101,75 @@
 								// 		Imprimir($"\nLos tipos de datos '{variable1}' y '{variable2}' no son compatibles");
 								// }
 							}
+							else
+							{
+								if (int.TryParse(nombre, out int variableEntera))
+								{
+
+									if (Index == 0)
+										condicionalEntero1 = variableEntera;
+
+									else
+									{
+										condicionalEntero2 = variableEntera;
+										CondicionesEntero(condicional, condicionalEntero1, condicionalEntero2);
+									}
+								}
+
+								else if (short.TryParse(nombre, out short variableShort))
+								{
+									if (Index == 0)
+										condicionalShort1 = variableShort;
+
+									else
+									{
+										condicionalShort2 = variableShort;
+										CondicionesShort(condicional, condicionalShort1, condicionalShort2);
+									}
+								}
+
+								else if (long.TryParse(nombre, out long variableLong))
+								{
+									if (Index == 0)
+										condicionalLong1 = variableLong;
+
+									else
+									{
+										condicionalLong2 = variableLong;
+										CondicionesLong(condicional, condicionalLong1, condicionalLong2);
+									}
+								}
+
+								else if (float.TryParse(nombre, out float variableFloat))
+								{
+									if (Index == 0)
+										condicionalFloat1 = variableFloat;
+
+									else
+									{
+										condicionalFloat2 = variableFloat;
+										CondicionesFloat(condicional, condicionalFloat1, condicionalFloat2);
+									}
+								}
+
+								else if (double.TryParse(nombre, out double variableDouble))
+								{
+									if (Index == 0)
+										condicionalDouble1 = variableDouble;
+
+									else
+									{
+										condicionalDouble2 = variableDouble;
+										CondicionesDouble(condicional, condicionalDouble1, condicionalDouble2);
+									}
+								}
+
+								else
+								{
+									// Imprimir($"\nLos tipos de datos '{variable}' y '{nombre}' no son compatibles");
+									// return true;
+								}
+							}
 							Index++;
 						}
 						else
@@ -1114,13 +1203,126 @@
 
 	// }
 
-	void Condiciones(string condicional, int condicional1, int condicional2)
+	//Comparar Enteros
+	void CondicionesEntero(string condicional, int condicional1, int condicional2)
 	{
-		bool resultado = Comparar(condicional, condicional1, condicional2);
+		bool resultado = CompararEnteros(condicional, condicional1, condicional2);
 		ManejarResultado(resultado);
 	}
 
-	bool Comparar(string condicional, int condicional1, int condicional2)
+	bool CompararEnteros(string condicional, int condicional1, int condicional2)
+	{
+		switch (condicional)
+		{
+			case "==":
+				return condicional1 == condicional2;
+			case "!=":
+				return condicional1 != condicional2;
+			case "<":
+				return condicional1 < condicional2;
+			case "<=":
+				return condicional1 <= condicional2;
+			case ">":
+				return condicional1 > condicional2;
+			case ">=":
+				return condicional1 >= condicional2;
+			default:
+				throw new ArgumentException("Condicional no válido");
+		}
+	}
+
+	//Comparar Shorts
+	void CondicionesShort(string condicional, short condicional1, short condicional2)
+	{
+		bool resultado = CompararShort(condicional, condicional1, condicional2);
+		ManejarResultado(resultado);
+	}
+
+	bool CompararShort(string condicional, short condicional1, short condicional2)
+	{
+		switch (condicional)
+		{
+			case "==":
+				return condicional1 == condicional2;
+			case "!=":
+				return condicional1 != condicional2;
+			case "<":
+				return condicional1 < condicional2;
+			case "<=":
+				return condicional1 <= condicional2;
+			case ">":
+				return condicional1 > condicional2;
+			case ">=":
+				return condicional1 >= condicional2;
+			default:
+				throw new ArgumentException("Condicional no válido");
+		}
+	}
+
+	//Comparar Longs
+	void CondicionesLong(string condicional, long condicional1, long condicional2)
+	{
+		bool resultado = CompararLong(condicional, condicional1, condicional2);
+		ManejarResultado(resultado);
+	}
+
+	bool CompararLong(string condicional, long condicional1, long condicional2)
+	{
+		switch (condicional)
+		{
+			case "==":
+				return condicional1 == condicional2;
+			case "!=":
+				return condicional1 != condicional2;
+			case "<":
+				return condicional1 < condicional2;
+			case "<=":
+				return condicional1 <= condicional2;
+			case ">":
+				return condicional1 > condicional2;
+			case ">=":
+				return condicional1 >= condicional2;
+			default:
+				throw new ArgumentException("Condicional no válido");
+		}
+	}
+
+	//Comparar Floats
+	void CondicionesFloat(string condicional, float condicional1, float condicional2)
+	{
+		bool resultado = CompararFloat(condicional, condicional1, condicional2);
+		ManejarResultado(resultado);
+	}
+
+	bool CompararFloat(string condicional, float condicional1, float condicional2)
+	{
+		switch (condicional)
+		{
+			case "==":
+				return condicional1 == condicional2;
+			case "!=":
+				return condicional1 != condicional2;
+			case "<":
+				return condicional1 < condicional2;
+			case "<=":
+				return condicional1 <= condicional2;
+			case ">":
+				return condicional1 > condicional2;
+			case ">=":
+				return condicional1 >= condicional2;
+			default:
+				throw new ArgumentException("Condicional no válido");
+		}
+	}
+
+	//Comparar Doubles
+	void CondicionesDouble(string condicional, double condicional1, double condicional2)
+	{
+		bool resultado = CompararDouble(condicional, condicional1, condicional2);
+		ManejarResultado(resultado);
+	}
+
+	bool CompararDouble(string condicional, double condicional1, double condicional2)
 	{
 		switch (condicional)
 		{
