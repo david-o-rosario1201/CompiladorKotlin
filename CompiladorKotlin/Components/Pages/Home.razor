@@ -157,6 +157,17 @@
 	//else
 	string patronElse = @"else";
 
+	//patron ciclo for
+	string patronCicloFor = @"for\(int _?[A-Za-z0-9]* = (_?[A-Za-z0-9]*|\d+(\.\d+)?); 
+		_?[A-Za-z0-9]* (==|!=|<|<=|>|>=) (_?[A-Za-z0-9]*|\d+(\.\d+)?); _?[A-Za-z0-9]*\+\+?\)";
+
+	//patron ciclo while
+	string patronCicloWhile = @"while\s*\(\s*\w+\s*(==|!=|<|<=|>|>=)\s*\w+\s*\)";
+
+	//patron contador
+	string patronContador = @"_?[A-Za-z0-9]+\s*(\+\+|--)";
+
+
 	async Task Compilar()
 	{
 		//Inicializar
@@ -252,11 +263,24 @@
 					if (AsignarValorVariable()) break;
 				}
 
+				//Ciclo While
+				else if (Regex.IsMatch(valor, patronCicloWhile))
+				{
+					CicloWhile();
+				}
+
 				//Condicion
 				else if(Regex.IsMatch(valor,patronCondicion))
 				{
 					if (VerificarCondicion()) break;
 				}
+
+				//Ciclo For
+				else if(Regex.IsMatch(valor,patronCicloFor))
+				{
+					//CicloWhile();
+				}
+
 				else
 				{
 					sinErrores = false;
@@ -1207,6 +1231,454 @@
 				break;
 		}
 		return false;
+	}
+
+	void CicloFor()
+	{
+
+
+		string condicion = "<";
+
+		Func<int, int, bool> comparador = null;
+
+		// Definir el comparador basado en la condición
+		switch (condicion)
+		{
+			case "<":
+				comparador = (a, b) => a < b;
+				break;
+			case ">":
+				comparador = (a, b) => a > b;
+				break;
+			// Agrega más condiciones según sea necesario
+			default:
+				throw new ArgumentException("Condición no válida");
+		}
+
+		if (comparador != null)
+		{
+			for (int i = 0; comparador(i, 5); i++)
+			{
+				Console.WriteLine(i);
+			}
+		}
+	}
+
+	bool CicloWhile()
+	{
+		List<string> nombres = new List<string>();
+
+
+		////////////////////////////////////////////////////////////////
+		int indiceLlave = valor.IndexOf('\n');
+
+		var borrarLinea = valor.Substring(0, indiceLlave + 2).Trim();
+		valor = borrarCadena(borrarLinea);
+		borrarLinea = borrarVariablesCadena(borrarLinea, "while(");
+
+		//buscar la primera variable
+		int primerEspacio = borrarLinea.IndexOf(' ');
+		string variable1 = borrarLinea.Substring(0, primerEspacio).Trim();
+		nombres.Add(variable1);
+
+		//borrar primera variable
+		borrarLinea = borrarVariablesCadena(borrarLinea, variable1);
+
+		//tomar condicional
+		primerEspacio = borrarLinea.IndexOf(' ');
+		int segundoEspacio = borrarLinea.LastIndexOf(' ');
+		string condicional = borrarLinea.Substring(0, primerEspacio).Trim();
+
+		//buscar la segunda variable
+		var borrar = borrarLinea.Substring(0, segundoEspacio);
+		borrarLinea = borrarVariablesCadena(borrarLinea, borrar);
+
+		int parentesis = borrarLinea.IndexOf(')');
+
+		string variable2 = borrarLinea.Substring(0, parentesis).Trim();
+		nombres.Add(variable2);
+
+		int Index = 0;
+		//Enteros
+		int condicionalEntero1 = 0;
+		int condicionalEntero2 = 0;
+
+		//Shor
+		short condicionalShort1 = 0;
+		short condicionalShort2 = 0;
+
+		//Long
+		long condicionalLong1 = 0;
+		long condicionalLong2 = 0;
+
+		//Float
+		float condicionalFloat1 = 0f;
+		float condicionalFloat2 = 0f;
+
+		//Double
+		double condicionalDouble1 = 0d;
+		double condicionalDouble2 = 0d;
+
+		foreach (var nombre in nombres)
+		{
+			if (VerificarQueNoSeaUnaPalabraReservada(nombre) == false)
+			{
+				var result = variables.FirstOrDefault(v => v.Key == nombre);
+				if (result.Key != null)
+				{
+					var enteroResult = enteroList.FirstOrDefault(v => v.nombre == result.Key);
+					var shortResult = shortList.FirstOrDefault(v => v.nombre == result.Key);
+					var longResult = longList.FirstOrDefault(v => v.nombre == result.Key);
+					var floatResult = floatList.FirstOrDefault(v => v.nombre == result.Key);
+					var doubleResult = doubleList.FirstOrDefault(v => v.nombre == result.Key);
+					var booleanResult = booleanList.FirstOrDefault(v => v.nombre == result.Key);
+					var charResult = charList.FirstOrDefault(v => v.nombre == result.Key);
+					var cadenaResult = cadenaList.FirstOrDefault(v => v.nombre == result.Key);
+
+					//var result2 = variables.FirstOrDefault(v => v.Key == variable2);
+
+					if (enteroResult is not null)
+					{
+						if (Index == 0)
+							condicionalEntero1 = enteroResult.valor;
+
+						else
+						{
+							condicionalEntero2 = enteroResult.valor;
+							ActivarCicloWhileEntero(condicional, condicionalEntero1, condicionalEntero2);
+						}
+					}
+
+					if (result.Key == null)
+					{
+
+
+						// else if (shortResult is not null && short.TryParse(variable2, out short datoShort))
+						// 	shortResult.valor = datoShort;
+
+						// else if (longResult is not null && long.TryParse(variable2, out long datoLong))
+						// 	longResult.valor = datoLong;
+
+						// else if (floatResult is not null && float.TryParse(variable2, out float datoFloat))
+						// 	floatResult.valor = datoFloat;
+
+						// else if (doubleResult is not null && double.TryParse(variable2, out double datoDouble))
+						// 	doubleResult.valor = datoDouble;
+
+						// else if (booleanResult is not null && bool.TryParse(variable2, out bool datoBoolean))
+						// 	booleanResult.valor = datoBoolean;
+
+						// else if (charResult is not null)
+						// {
+						// 	// Si es un char, asegúrate de que el valor tenga comillas simples
+						// 	if (variable2.Length != 3 || variable2[0] != '\'' || variable2[2] != '\'')
+						// 	{
+						// 		Imprimir($"\nSe esperaban comillas simples para el tipo de dato char en la variable '{variable1}'");
+						// 		sinErrores = false;
+						// 		break;
+						// 	}
+						// 	charResult.valor = variable2[1]; // Asigna el valor entre las comillas simples
+						// }
+						// else if (cadenaResult is not null)
+						// {
+						// 	// Si es un string, asegúrate de que el valor tenga comillas dobles
+						// 	if (variable2.Length < 2 || variable2[0] != '"' || variable2[variable2.Length - 1] != '"')
+						// 	{
+						// 		Imprimir($"\nSe esperaban comillas dobles para el tipo de dato string en la variable '{variable1}'");
+						// 		sinErrores = false;
+						// 		break;
+						// 	}
+						// 	cadenaResult.valor = variable2.Substring(1, variable2.Length - 2); // Asigna el valor entre las comillas dobles
+						// }
+
+						// else
+						// {
+						// 	Imprimir($"\nLos tipos de datos '{variable1}' y '{variable2}' no son compatibles");
+						// 	sinErrores = false;
+						// 	break;
+						// }
+					}
+					// else
+					// {
+					// 	var entero2Result = enteroList.FirstOrDefault(v => v.nombre == result2.Key);
+					// 	var short2Result = shortList.FirstOrDefault(v => v.nombre == result2.Key);
+					// 	var long2Result = longList.FirstOrDefault(v => v.nombre == result2.Key);
+					// 	var float2Result = floatList.FirstOrDefault(v => v.nombre == result2.Key);
+					// 	var double2Result = doubleList.FirstOrDefault(v => v.nombre == result2.Key);
+					// 	var boolean2Result = booleanList.FirstOrDefault(v => v.nombre == result2.Key);
+					// 	var char2Result = charList.FirstOrDefault(v => v.nombre == result2.Key);
+					// 	var cadena2Result = cadenaList.FirstOrDefault(v => v.nombre == result2.Key);
+
+					// 	if (enteroResult is not null && entero2Result is not null)
+					// 		enteroResult.valor = entero2Result.valor;
+
+					// 	else if (shortResult is not null && short2Result is not null)
+					// 		shortResult.valor = short2Result.valor;
+
+					// 	else if (longResult is not null && long2Result is not null)
+					// 		longResult.valor = long2Result.valor;
+
+					// 	else if (floatResult is not null && float2Result is not null)
+					// 		floatResult.valor = float2Result.valor;
+
+					// 	else if (doubleResult is not null && double2Result is not null)
+					// 		doubleResult.valor = double2Result.valor;
+
+					// 	else if (booleanResult is not null && boolean2Result is not null)
+					// 		booleanResult.valor = boolean2Result.valor;
+
+					// 	else if (charResult is not null && char2Result is not null)
+					// 	{
+					// 		charResult.valor = char2Result.valor;
+					// 	}
+					// 	else if (cadenaResult is not null && cadena2Result is not null)
+					// 	{
+					// 		cadenaResult.valor = cadena2Result.valor;
+					// 	}
+
+					// 	else
+					// 		Imprimir($"\nLos tipos de datos '{variable1}' y '{variable2}' no son compatibles");
+					// }
+				}
+				else
+				{
+					if (int.TryParse(nombre, out int variableEntera))
+					{
+
+						if (Index == 0)
+							condicionalEntero1 = variableEntera;
+
+						else
+						{
+							condicionalEntero2 = variableEntera;
+							ActivarCicloWhileEntero(condicional, condicionalEntero1, condicionalEntero2);
+						}
+					}
+
+					else if (short.TryParse(nombre, out short variableShort))
+					{
+						if (Index == 0)
+							condicionalShort1 = variableShort;
+
+						else
+						{
+							condicionalShort2 = variableShort;
+							CondicionesShort(condicional, condicionalShort1, condicionalShort2);
+						}
+					}
+
+					else if (long.TryParse(nombre, out long variableLong))
+					{
+						if (Index == 0)
+							condicionalLong1 = variableLong;
+
+						else
+						{
+							condicionalLong2 = variableLong;
+							CondicionesLong(condicional, condicionalLong1, condicionalLong2);
+						}
+					}
+
+					else if (float.TryParse(nombre, out float variableFloat))
+					{
+						if (Index == 0)
+							condicionalFloat1 = variableFloat;
+
+						else
+						{
+							condicionalFloat2 = variableFloat;
+							CondicionesFloat(condicional, condicionalFloat1, condicionalFloat2);
+						}
+					}
+
+					else if (double.TryParse(nombre, out double variableDouble))
+					{
+						if (Index == 0)
+							condicionalDouble1 = variableDouble;
+
+						else
+						{
+							condicionalDouble2 = variableDouble;
+							CondicionesDouble(condicional, condicionalDouble1, condicionalDouble2);
+						}
+					}
+
+					else
+					{
+						// Imprimir($"\nLos tipos de datos '{variable}' y '{nombre}' no son compatibles");
+						// return true;
+					}
+				}
+				Index++;
+			}
+			else
+				break;
+		}
+		return false;
+	}
+
+	void ActivarCicloWhileEntero(string condicional, int entero1, int entero2)
+	{
+		//Quitar llaves
+		// int fin = valor.IndexOf('}');
+		// var borrarLinea = valor.Substring(0, fin + 1).Trim();
+		// valor = borrarCadena(borrarLinea);
+
+		valor = borrarCadena("{").Trim();
+		valor = valor.Remove(valor.Length - 1, 1).Trim();
+		var guardar = valor;
+
+		Func<int, int, bool> comparador = ActivarCondicion(condicional);
+
+		while (comparador(entero1, entero2))
+		{
+			valor = guardar;
+			while(valor.Length > 1)
+			{
+				//Comentario
+				if (Regex.IsMatch(valor, patronComentario))
+				{
+					int indiceSaltoLinea = valor.IndexOf('\n');
+					var borrarComentario = valor.Substring(0, indiceSaltoLinea);
+					valor = borrarCadena(borrarComentario);
+				}
+
+				//Imprimir
+				else if (Regex.IsMatch(valor, patronPrint) || Regex.IsMatch(valor, patronPrintln)
+					|| Regex.IsMatch(valor, patronPrintConVariable)
+						|| Regex.IsMatch(valor, patronPrintlnConVariable))
+				{
+					if (VerificarImprimir()) break;
+				}
+
+				//Declaracion de variables
+				else if (valor.StartsWith("var ") || valor.StartsWith("val "))
+				{
+					if (VerificarCreacionVariables()) break;
+				}
+
+				//Sumar
+				else if (Regex.IsMatch(valor, patronSumar))
+				{
+					if (VerificarSuma()) break;
+				}
+
+				//Restar
+				else if (Regex.IsMatch(valor, patronRestar))
+				{
+					if (VerificarResta()) break;
+				}
+
+				//Multiplicar
+				else if (Regex.IsMatch(valor, patronMulti))
+				{
+					if (VerificarMultiplicacion()) break;
+				}
+
+				//Dividir
+				else if (Regex.IsMatch(valor, patronDivi))
+				{
+					if (VerificarDivision()) break;
+				}
+
+				//Asignar Variable
+				else if (Regex.IsMatch(valor, patronAsignacion))
+				{
+					if (AsignarValorVariable()) break;
+				}
+
+				//Condicion
+				else if (Regex.IsMatch(valor, patronCondicion))
+				{
+					if (VerificarCondicion()) break;
+				}
+
+				//Ciclo For
+				else if (Regex.IsMatch(valor, patronCicloFor))
+				{
+
+				}
+
+				//Ciclo While
+				else if (Regex.IsMatch(valor, patronCicloWhile))
+				{
+
+				}
+
+				else if (Regex.IsMatch(valor, patronContador))
+				{
+					int indiceMas = valor.LastIndexOf('+');
+
+					var borrarLinea = valor.Substring(0, indiceMas + 1);
+					valor = borrarCadena(borrarLinea);
+
+					var indice = borrarLinea.LastIndexOf('+');
+					var nombre = borrarLinea.Substring(0, indice - 1);
+
+					if (VerificarQueNoSeaUnaPalabraReservada(nombre) == false)
+					{
+						var result = variables.FirstOrDefault(v => v.Key == nombre);
+						if (result.Key != null)
+						{
+							var enteroResult = enteroList.FirstOrDefault(v => v.nombre == result.Key);
+
+							if (enteroResult is not null)
+							{
+								enteroResult.valor += 1;
+								entero1 = enteroResult.valor;
+							}
+							else
+							{
+								//poner aqui el else
+							}
+						}
+					}
+					else
+						break;
+				}
+
+				else
+				{
+					sinErrores = false;
+					Imprimir($"\n*No se reconoce  \"{valor}\"");
+					break;
+				}
+			}
+		}
+		// var borrar2 = valor + borrarLinea;
+		// valor = borrar2;
+	}
+
+	Func<int,int,bool> ActivarCondicion(string condicion)
+	{
+		Func<int, int, bool> comparador = null;
+
+		// Definir el comparador basado en la condición
+		switch (condicion)
+		{
+			case "==":
+				comparador = (a, b) => a == b;
+				break;
+			case "!=":
+				comparador = (a, b) => a != b;
+				break;
+			case "<":
+				comparador = (a, b) => a < b;
+				break;
+			case "<=":
+				comparador = (a, b) => a <= b;
+				break;
+			case ">":
+				comparador = (a, b) => a > b;
+				break;
+			case ">=":
+				comparador = (a, b) => a >= b;
+				break;
+			default:
+				throw new ArgumentException("Condición no válida");
+		}
+
+		return comparador;
 	}
 
 	//condicion en caso de que me falle al buscar el indice
