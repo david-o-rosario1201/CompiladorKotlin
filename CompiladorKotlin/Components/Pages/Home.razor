@@ -263,16 +263,16 @@
 					if (AsignarValorVariable()) break;
 				}
 
+				//Condicion
+				else if (Regex.IsMatch(valor, patronCondicion))
+				{
+					if (VerificarCondicion()) break;
+				}
+
 				//Ciclo While
 				else if (Regex.IsMatch(valor, patronCicloWhile))
 				{
 					CicloWhile();
-				}
-
-				//Condicion
-				else if(Regex.IsMatch(valor,patronCondicion))
-				{
-					if (VerificarCondicion()) break;
 				}
 
 				//Ciclo For
@@ -389,9 +389,9 @@
 					else if (floatResult is not null)
 					{
 						if (Regex.IsMatch(borrarLinea, patronPrintConVariable))
-							Imprimir("\n" + longResult.valor.ToString());
+							Imprimir("\n" + floatResult.valor.ToString());
 						else
-							Imprimir("\n\n" + longResult.valor.ToString());
+							Imprimir("\n\n" + floatResult.valor.ToString());
 					}
 
 					else if (doubleResult is not null)
@@ -827,7 +827,7 @@
 		var borrarLinea = valor.Substring(0, saltoLinea + 2);
 		valor = borrarCadena(borrarLinea);
 
-		if (Restar(borrarLinea))
+		if (Multiplicar(borrarLinea))
 		{
 			sinErrores = true;
 			return true;
@@ -843,7 +843,7 @@
 		var borrarLinea = valor.Substring(0, saltoLinea + 2);
 		valor = borrarCadena(borrarLinea);
 
-		if (Restar(borrarLinea))
+		if (Dividir(borrarLinea))
 		{
 			sinErrores = true;
 			return true;
@@ -1870,11 +1870,11 @@
 				int indiceElse = valor.IndexOf('}');
 				borrarLinea = valor.Substring(0, indiceElse + 1).Trim();
 				valor = borrarCadena(borrarLinea);
-				borrarLinea = borrarVariablesCadena(borrarLinea, "{");
-				borrarLinea = borrarLinea.Remove(borrarLinea.Length - 1, 1).Trim();
+				// borrarLinea = borrarVariablesCadena(borrarLinea, "{");
+				// borrarLinea = borrarLinea.Remove(borrarLinea.Length - 1, 1).Trim();
 
-				var indexar = borrarLinea + valor;
-				valor = indexar;
+				// var indexar = borrarLinea + valor;
+				// valor = indexar;
 			}
 		}
 	}
